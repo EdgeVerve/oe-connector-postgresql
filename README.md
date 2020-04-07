@@ -423,3 +423,16 @@ E.g.
 }
 ```
 > **Note**: Other than the required fields other properties will takeup default values as indicated in a simple sequence.
+
+
+## Index usage with like operator
+
+Like operator can be used in 4 ways in our queries:
+
+1. Search-String%
+2. %Search-String
+3. %Search-String%
+4. Search%String
+
+Index range scan is only done in for cases like Search-String% and Search%String.
+While using %Search-String and %Search-String% full table scan is done.
