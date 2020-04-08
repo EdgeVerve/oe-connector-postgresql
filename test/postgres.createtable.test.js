@@ -1,11 +1,11 @@
 const should = require('should');
 let db = null;
-describe('Auto-create schema with sequence support', function() {
-  before(function(done) {
+describe('Auto-create schema with sequence support', function () {
+  before(function (done) {
     db = global.getDataSource();
 
     // standard sequence
-    db.define('TestSchema', {      
+    db.define('TestSchema', {
       reservationId: {
         type: 'number',
         postgresql: {
@@ -34,12 +34,12 @@ describe('Auto-create schema with sequence support', function() {
         id: true
       },
       firstName: "string",
-      "lastName":"string"
+      "lastName": "string"
     });
 
     // complex sequence
     db.define('TestSchema3', {
-      reservationId : {
+      reservationId: {
         type: 'string',
         postgresql: {
           sequence: {
@@ -62,32 +62,32 @@ describe('Auto-create schema with sequence support', function() {
     // }).catch(function(error){
     //   return done(error)
     // });
-    db.automigrate(function(error){
+    db.automigrate(function (error) {
       console.log(error)
       return done(error)
     });
   });
 
-  describe('standard sequence', function() {
-    it('asserts that the table is created', function(done) {
+  describe('standard sequence', function () {
+    it('asserts that the table is created', function (done) {
       db.discoverModelProperties('testschema', (err, result) => {
-        if(err) {
+        if (err) {
           done(err);
         }
         else {
-          result.should.not.be.undefined;        
+          result.should.not.be.undefined;
           result.length.should.equal(2); // 3 - since id will be auto-populated
           done();
         }
       })
     });
-  
-    it('asserts that the reservationid is a column created and it has sequence suppport', function(done){
+
+    it('asserts that the reservationid is a column created and it has sequence suppport', function (done) {
       // let connector = db.connector;
       let query = 'SELECT column_default FROM INFORMATION_SCHEMA.columns WHERE table_name = \'testschema\' and column_name = \'reservationid\'';
-      
-      db.connector.executeSQL(query, null, {}, function(err, results) {
-        if(err) {
+
+      db.connector.executeSQL(query, null, {}, function (err, results) {
+        if (err) {
           done(err);
         }
         else {
@@ -96,35 +96,35 @@ describe('Auto-create schema with sequence support', function() {
           done();
         }
       })
-      
+
     });
-  
+
     it('should assert that the reservationid field autogenerates as per sequence', function (done) {
-      
+
       let Model = db.models['TestSchema'];
       Model.create.should.be.a.Function;
-      Model.create([{ personName: 'foobar' }, { personName: 'foobaz'} ], function (err, data) {
-        if(err) {
+      Model.create([{ personName: 'foobar' }, { personName: 'foobaz' }], function (err, data) {
+        if (err) {
           done(err);
         }
         else {
           data.should.be.Array;
           data.length.should.equal(2);
-          data[data.length-1].reservationId.should.equal(2);
+          data[data.length - 1].reservationId.should.equal(2);
           done();
         }
       });
     });
   });
 
-  describe('simple sequence', function() {
+  describe('simple sequence', function () {
 
-    it('asserts that the reservationid is a column created and it has sequence suppport in testschema2', function(done){
+    it('asserts that the reservationid is a column created and it has sequence suppport in testschema2', function (done) {
       // let connector = db.connector;
       let query = 'SELECT column_default FROM INFORMATION_SCHEMA.columns WHERE table_name = \'testschema2\' and column_name = \'reservationid\'';
-      
-      db.connector.executeSQL(query, null, {}, function(err, results) {
-        if(err) {
+
+      db.connector.executeSQL(query, null, {}, function (err, results) {
+        if (err) {
           done(err)
         }
         else {
@@ -132,13 +132,13 @@ describe('Auto-create schema with sequence support', function() {
           results[0].column_default.includes('reservation_sequence').should.be.true();
           done();
         }
-      });    
+      });
     });
 
     it('asserts that the sequence object is created in database', done => {
       let query = 'select * from information_schema.sequences where sequence_name = \'reservation_sequence\'';
-      db.connector.executeSQL(query, null, {}, function(err, results) {
-        if(err) {
+      db.connector.executeSQL(query, null, {}, function (err, results) {
+        if (err) {
           done(err);
         }
         else {
@@ -159,13 +159,13 @@ describe('Auto-create schema with sequence support', function() {
         { firstName: 'Jane', lastName: 'Contoso' }
       ];
 
-      Model.create(data, function(err) {
-        if(err) {
+      Model.create(data, function (err) {
+        if (err) {
           done(err);
         }
         else {
-          db.connector.executeSQL('select last_value from reservation_sequence', null, {}, function(err, result){
-            if(err) {
+          db.connector.executeSQL('select last_value from reservation_sequence', null, {}, function (err, result) {
+            if (err) {
               done(err);
             }
             else {
@@ -178,11 +178,11 @@ describe('Auto-create schema with sequence support', function() {
     });
   });
 
-  describe('complex sequence', function(){
+  describe('complex sequence', function () {
     it('should have created the table in the db', done => {
       let query = 'select count(*) from information_schema.tables where table_name = \'testschema3\'';
-      db.connector.executeSQL(query, null, {}, function(err, result) {
-        if(err) {
+      db.connector.executeSQL(query, null, {}, function (err, result) {
+        if (err) {
           done(err);
         }
         else {
@@ -207,14 +207,14 @@ describe('Auto-create schema with sequence support', function() {
       let model = db.models['TestSchema3'];
 
       model.create(data, (err, results) => {
-        if(err) {
+        if (err) {
           done(err);
         }
         else {
           results.length.should.equal(2);
           let query = `select last_value from reservation_sequence;`;
           db.connector.executeSQL(query, null, {}, (err, result) => {
-            if(err) {
+            if (err) {
               done(err)
             }
             else {
@@ -226,9 +226,87 @@ describe('Auto-create schema with sequence support', function() {
       });
     });
 
+    it('should insert a data directly', function (done) {
+      let Model = db.models['TestSchema2'];
+
+      var tableSchemaData = [
+        {
+          firstName: 'Joe', lastName: 'Root'
+        },
+        {
+          firstName: 'Nathan Coulter', lastName: 'Lyon'
+        },
+        {
+          firstName: 'Daniel A', lastName: 'Veetori'
+        },
+        {
+          firstName: 'AB Benjamin', lastName: 'Develliers'
+        },
+        {
+          firstName: 'Abraham Nicholas', lastName: 'Lincoln'
+        },
+        {
+          firstName: 'Jammy Anderson', lastName: 'Buttler'
+        }
+      ];
+
+      Model.create(tableSchemaData, (err) => {
+        if (err) {
+          done(err);
+        } else {
+          done();
+        }
+      });
+    });
+
+    it('supports queries using like', function (done) {
+      let Model = db.models['TestSchema2'];
+      Model.find({ where: { firstName: { like: '%Nicholas%' } } }, function (err, posts) {
+        if (err) return done(err);
+        posts.length.should.equal(1);
+        posts[0].firstName.should.equal('Abraham Nicholas');
+        done();
+      });
+    });
+
+    it('supports like for no match', function (done) {
+      let Model = db.models['TestSchema2'];
+      Model.find({ where: { firstName: { like: '%Kohli%' } } }, function (err, posts) {
+        if (err) return done(err);
+        posts.length.should.equal(0);
+        done();
+      });
+    });
+
+    it('supports case insensitive queries using like', function (done) {
+      let Model = db.models['TestSchema2'];
+      Model.find({ where: { firstName: { ilike: '%nicholas%' } } }, function (err, posts) {
+        if (err) return done(err);
+        posts.length.should.equal(1);
+        posts[0].firstName.should.equal('Abraham Nicholas');
+        done();
+      });
+    });
+
+    it('supports negative queries using nlike', function (done) {
+      let Model = db.models['TestSchema2'];
+      Model.find({ where: { firstName: { nlike: '%Nicholas%' } } }, function (err, posts) {
+        if (err) return done(err);
+        posts.length.should.equal(7);
+        done();
+      });
+    });
+
+    it('supports negative case sensitive queries using nilike', function (done) {
+      let Model = db.models['TestSchema2'];
+      Model.find({ where: { firstName: { nilike: '%nicholas%' } } }, function (err, posts) {
+        if (err) return done(err);
+        posts.length.should.equal(7);
+        done();
+      });
+    });
+
   });
 
-  
 
-  
 });
