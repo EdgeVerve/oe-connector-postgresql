@@ -306,6 +306,22 @@ describe('Auto-create schema with sequence support', function () {
       });
     });
 
+    it('supports regex queries using like', function (done) {
+      let Model = db.models['TestSchema2'];
+      Model.find({
+        where: {
+          firstName: {
+            like:
+              new RegExp('nicholas', 'i')
+          }
+        }
+      }, function (err, posts) {
+        if (err) return done(err);
+        posts.length.should.equal(1);
+        posts[0].firstName.should.equal('Abraham Nicholas');
+        done();
+      });
+    });
   });
 
 
