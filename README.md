@@ -287,6 +287,8 @@ Example settings:
 }
 ```
 
+In addition to also create necessary tables, set ENABLE_DS_AUTOUPDATE environment variable to 'true'.
+
 **NOTE**: This has only been done for testing and CI / CD purpose. In production, you should always have predefined database.
 Database has large number of parameters to fine tune performance. In production, you should not depend on default parameters.
 Also, application user will not have permissions to create database.
