@@ -287,6 +287,8 @@ Example settings:
 }
 ```
 
+In addition to also create necessary tables, set ENABLE_DS_AUTOUPDATE environment variable to 'true'.
+
 **NOTE**: This has only been done for testing and CI / CD purpose. In production, you should always have predefined database.
 Database has large number of parameters to fine tune performance. In production, you should not depend on default parameters.
 Also, application user will not have permissions to create database.
@@ -423,3 +425,16 @@ E.g.
 }
 ```
 > **Note**: Other than the required fields other properties will takeup default values as indicated in a simple sequence.
+
+
+## Index usage with like operator
+
+Like operator can be used in 4 ways in our queries:
+
+1. Search-String%
+2. %Search-String
+3. %Search-String%
+4. Search%String
+
+Index range scan is only done in for cases like Search-String% and Search%String.
+While using %Search-String and %Search-String% full table scan is done.
